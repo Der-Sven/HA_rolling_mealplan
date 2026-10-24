@@ -52,14 +52,11 @@ class RollingMealplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Allow the plan length to be changed after initial setup."""
-        return RollingMealplanOptionsFlow(config_entry)
+        return RollingMealplanOptionsFlow()
 
 
 class RollingMealplanOptionsFlow(config_entries.OptionsFlow):
     """Configure the number of rolling plan weeks."""
-
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         """Show and save the desired plan length."""
