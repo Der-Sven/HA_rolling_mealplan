@@ -1,0 +1,21 @@
+Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Familien-Speiseplan",
+        "description": "Lege den ersten Montag des 12-Wochen-Plans und deine Einkaufsliste fest.",
+        "data": {
+          "anchor_date": "Montag der ersten Planwoche",
+          "todo_entity": "Einkaufsliste"
+        }
+      }
+    },
+    "error": {
+      "not_monday": "Das Startdatum muss ein Montag sein."
+    },
+    "abort": {
+      "already_configured": "Der Speiseplan ist bereits eingerichtet."
+    }
+  }
+}
