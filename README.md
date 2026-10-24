@@ -1,6 +1,6 @@
 # HA Rolling Mealplan
 
-> **Work in progress — Vorabversion 0.4.0b0.** Noch kein stabiler Release; Funktionen und Datenformat können sich ändern.
+> **Work in progress — Vorabversion 0.4.1b0.** Noch kein stabiler Release; Funktionen und Datenformat können sich ändern.
 
 
 
@@ -8,7 +8,7 @@ Eine Home Assistant Custom Integration für einen wiederkehrenden Familien-Speis
 
 ## Versionierung
 
-Die Integrationsversion steht im Manifest der Integration. Der aktuelle Stand ist **0.4.0b0** (Vorabversion). HACS zeigt bei einem Repository ohne veröffentlichtes GitHub-Release nur den kurzen Commit-SHA. Für eine Versionsnummer in HACS wird ein GitHub-Release mit passendem Versions-Tag benötigt. Dieses Projekt verwendet dafür Vorabversionen; eine stabile Version ist noch nicht veröffentlicht.
+Die Integrationsversion steht im Manifest der Integration. Der aktuelle Stand ist **0.4.1b0** (Vorabversion). HACS zeigt bei einem Repository ohne veröffentlichtes GitHub-Release nur den kurzen Commit-SHA. Für eine Versionsnummer in HACS wird ein GitHub-Release mit passendem Versions-Tag benötigt. Dieses Projekt verwendet dafür Vorabversionen; eine stabile Version ist noch nicht veröffentlicht.
 ## Funktionen
 
 - Eigene Speiseplan-Seite in der Home Assistant Seitenleiste mit Wochen-Navigation und Planwochennummer
@@ -39,7 +39,7 @@ Der Einkaufslisten-Knopf fügt die Zutaten nur nach Interaktion hinzu. Home Assi
 
 ## JSON-Format
 
-JSON-Export und -Import enthalten alle Gerichte und genau so viele Zyklustage, wie in den Integrationseinstellungen konfiguriert sind. Ein Eintrag im schedule ist eine Gericht-ID oder null. Alternativ akzeptiert der JSON-Import weeks als Liste mit je sieben Gericht-IDs pro Planwoche.
+JSON-Export und -Import enthalten alle Gerichte, das Start-Montag-Datum und genau so viele Zyklustage, wie in den Integrationseinstellungen konfiguriert sind. Ein Eintrag im schedule ist eine Gericht-ID oder null. Beim Import wird das Start-Montag-Datum übernommen, wenn es im JSON enthalten und ein Montag ist. Alternativ akzeptiert der JSON-Import weeks als Liste mit je sieben Gericht-IDs pro Planwoche.
 
 ## CSV-Format
 

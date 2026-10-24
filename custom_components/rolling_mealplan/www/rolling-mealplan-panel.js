@@ -103,7 +103,7 @@ class RollingMealplanPanel extends HTMLElement {
   async _import(ev) {
     const file=ev.target.files?.[0];if(!file)return;
     // Import replaces every meal and cycle slot, so ask before sending it to storage.
-    if(!confirm("Der Import ersetzt die Gerichteliste und alle "+(this._data.weeks||12)+" Planwochen. Fortfahren?")){ev.target.value="";return;}
+    if(!confirm("Der Import ersetzt die Gerichteliste und alle "+(this._data.weeks||12)+" Planwochen. Ein im JSON enthaltenes Start-Montag wird ebenfalls übernommen. Fortfahren?")){ev.target.value="";return;}
     try {
       let data;
       if(file.name.toLowerCase().endsWith(".csv"))data=this._csv(await file.text());

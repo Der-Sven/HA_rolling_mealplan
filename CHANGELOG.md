@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.1b0] - 2026-10-24
+
+### Added
+
+- JSON-Import übernimmt ein enthaltenes gültiges Start-Montag-Datum. So kann der importierte Speiseplan direkt am passenden Punkt im rollierenden Wochenzyklus starten.
+
+### Fixed
+
+- Options-Flow ist mit Home Assistant 2025.12 und neuer kompatibel.
+
+
 ## [0.4.0b0] - 2026-10-24
 
 ### Added

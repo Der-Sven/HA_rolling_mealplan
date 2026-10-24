@@ -26,6 +26,7 @@ class MealPlanStore:
         self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self.data: dict[str, Any] = {
             "version": 1,
+            "anchor_date": self.anchor_date,
             "meals": [],
             "schedule": [None] * self.days_in_cycle,
         }
@@ -38,10 +39,21 @@ class MealPlanStore:
             meals = saved.get("meals", [])
             schedule = saved.get("schedule", [])
             if isinstance(meals, list) and isinstance(schedule, list):
+                # Restore an imported plan anchor, falling back to the configured anchor
+                # for data saved by older versions of the integration.
+                saved_anchor = saved.get("anchor_date")
+                if isinstance(saved_anchor, str):
+                    try:
+                        parsed_anchor = date.fromisoformat(saved_anchor)
+                    except ValueError:
+                        parsed_anchor = None
+                    if parsed_anchor is not None and parsed_anchor.weekday() == 0:
+                        self.anchor_date = saved_anchor
                 # Preserve assignments that fit; extend empty or truncate only the last days.
                 resized_schedule = schedule[:self.days_in_cycle] + [None] * max(0, self.days_in_cycle - len(schedule))
                 self.data = {
                     "version": 1,
+                    "anchor_date": self.anchor_date,
                     "meals": [m for m in meals if isinstance(m, dict) and m.get("id") and m.get("name")],
                     "schedule": resized_schedule,
                 }
@@ -126,7 +138,20 @@ class MealPlanStore:
             })
         if any(item is not None and item not in seen_ids for item in schedule):
             raise ValueError("Der Import verweist auf ein unbekanntes Gericht.")
-        self.data = {"version": 1, "meals": clean_meals, "schedule": schedule}
+        # A JSON export may carry the cycle's start Monday. Validate it before
+        # replacing the current plan so malformed imports cannot alter state.
+        imported_anchor = payload.get("anchor_date", self.anchor_date)
+        if not isinstance(imported_anchor, str):
+            raise ValueError("Das Startdatum im JSON-Import ist ungültig.")
+        try:
+            parsed_anchor = date.fromisoformat(imported_anchor)
+        except ValueError as err:
+            raise ValueError("Das Startdatum im JSON-Import ist ungültig.") from err
+        if parsed_anchor.weekday() != 0:
+            raise ValueError("Das Startdatum im JSON-Import muss ein Montag sein.")
+
+        self.anchor_date = imported_anchor
+        self.data = {"version": 1, "anchor_date": self.anchor_date, "meals": clean_meals, "schedule": schedule}
         await self._async_save()
 
     async def _async_save(self) -> None:
