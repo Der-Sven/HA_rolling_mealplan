@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0b0] - 2026-10-24
+
+### Added
+
+- Planlänge von 1 bis 52 Wochen in den Integrationseinstellungen konfigurierbar.
+- Verlängern hängt leere Wochen an; Verkürzen entfernt nur die letzten Wochen. Die Gerichteliste bleibt unverändert.
+- Die Wochenansicht zeigt die Nummer der Planwoche (1 bis zur eingestellten Planlänge), unabhängig von der Kalenderwoche.
+- JSON- und CSV-Import berücksichtigen die konfigurierte Wochenzahl.
+
+### Notes
+
+- Weiterhin eine Vorabversion und noch kein stabiler Release.
+
+
 Änderungen an diesem Projekt werden hier dokumentiert. Das Projekt befindet sich noch in der Entwicklung; Versionsnummern mit dem Suffix b kennzeichnen Vorabversionen.
 
 ## [0.3.0b0] - 2026-10-24

@@ -7,9 +7,10 @@ from datetime import date, timedelta
 import voluptuous as vol
 from homeassistant.util import dt as dt_util
 from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.helpers import selector
 
-from .const import DOMAIN
+from .const import DEFAULT_WEEKS, DOMAIN, MAX_WEEKS, MIN_WEEKS
 
 
 class RollingMealplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -21,7 +22,7 @@ class RollingMealplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Set the first Monday and the shopping list entity."""
         errors = {}
         if user_input is not None:
-            # This Monday anchors the fixed 84-day rotation, independent of calendar months.
+            # This Monday anchors the rolling plan, independent of calendar months.
             anchor = date.fromisoformat(user_input["anchor_date"])
             if anchor.weekday() != 0:
                 errors["anchor_date"] = "not_monday"
@@ -45,3 +46,29 @@ class RollingMealplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
         })
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Allow the plan length to be changed after initial setup."""
+        return RollingMealplanOptionsFlow(config_entry)
+
+
+class RollingMealplanOptionsFlow(config_entries.OptionsFlow):
+    """Configure the number of rolling plan weeks."""
+
+    def __init__(self, config_entry):
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Show and save the desired plan length."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+        current_weeks = self.config_entry.options.get("weeks", DEFAULT_WEEKS)
+        schema = vol.Schema({
+            vol.Required("weeks", default=current_weeks): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=MIN_WEEKS, max=MAX_WEEKS, step=1, mode=selector.NumberSelectorMode.BOX)
+            ),
+        })
+        return self.async_show_form(step_id="init", data_schema=schema)

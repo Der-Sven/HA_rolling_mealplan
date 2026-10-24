@@ -58,7 +58,7 @@ class MealSensor(SensorEntity):
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": "Familien-Speiseplan",
             "manufacturer": "HA Rolling Mealplan",
-            "model": "12-Wochen-Plan",
+            "model": f"{store.weeks}-Wochen-Plan",
         }
 
     @property

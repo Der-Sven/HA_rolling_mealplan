@@ -10,22 +10,24 @@ from uuid import uuid4
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
-from .const import DOMAIN, STORAGE_KEY, STORAGE_VERSION
+from .const import DEFAULT_WEEKS, DOMAIN, STORAGE_KEY, STORAGE_VERSION
 
-DAYS_IN_CYCLE = 84
+MAX_WEEKS = 52
 
 
 class MealPlanStore:
-    """Manage meals and the 84-day repeating schedule."""
+    """Manage meals and a configurable repeating weekly schedule."""
 
-    def __init__(self, hass: HomeAssistant, anchor_date: str) -> None:
+    def __init__(self, hass: HomeAssistant, anchor_date: str, weeks: int = DEFAULT_WEEKS) -> None:
         self.hass = hass
         self.anchor_date = anchor_date
+        self.weeks = max(1, min(MAX_WEEKS, int(weeks)))
+        self.days_in_cycle = self.weeks * 7
         self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self.data: dict[str, Any] = {
             "version": 1,
             "meals": [],
-            "schedule": [None] * DAYS_IN_CYCLE,
+            "schedule": [None] * self.days_in_cycle,
         }
         self._listeners: set[Callable[[], None]] = set()
 
@@ -35,12 +37,16 @@ class MealPlanStore:
         if isinstance(saved, dict):
             meals = saved.get("meals", [])
             schedule = saved.get("schedule", [])
-            if isinstance(meals, list) and isinstance(schedule, list) and len(schedule) == DAYS_IN_CYCLE:
+            if isinstance(meals, list) and isinstance(schedule, list):
+                # Preserve assignments that fit; extend empty or truncate only the last days.
+                resized_schedule = schedule[:self.days_in_cycle] + [None] * max(0, self.days_in_cycle - len(schedule))
                 self.data = {
                     "version": 1,
                     "meals": [m for m in meals if isinstance(m, dict) and m.get("id") and m.get("name")],
-                    "schedule": schedule,
+                    "schedule": resized_schedule,
                 }
+                if len(schedule) != self.days_in_cycle:
+                    await self._store.async_save(self.data)
 
     def add_listener(self, callback: Callable[[], None]) -> Callable[[], None]:
         """Subscribe an entity to plan changes."""
@@ -50,8 +56,8 @@ class MealPlanStore:
     def meal_for_date(self, day: date) -> tuple[dict[str, Any] | None, int]:
         """Return scheduled meal and cycle slot for a date."""
         # The anchor is day 0. Modulo maps dates before it and dates after
-        # week 12 back into the same cycle.
-        offset = (day - date.fromisoformat(self.anchor_date)).days % DAYS_IN_CYCLE
+        # the last plan week back into the same cycle.
+        offset = (day - date.fromisoformat(self.anchor_date)).days % self.days_in_cycle
         meal_id = self.data["schedule"][offset]
         return next((meal for meal in self.data["meals"] if meal["id"] == meal_id), None), offset
 
@@ -60,6 +66,7 @@ class MealPlanStore:
         return {
             "version": 1,
             "anchor_date": self.anchor_date,
+            "weeks": self.weeks,
             "meals": self.data["meals"],
             "schedule": self.data["schedule"],
         }
@@ -87,8 +94,8 @@ class MealPlanStore:
 
     async def async_set_day(self, day_index: int, meal_id: str | None) -> None:
         """Assign a meal to a cycle day."""
-        if not 0 <= day_index < DAYS_IN_CYCLE:
-            raise ValueError("Der Plan-Tag muss zwischen 0 und 83 liegen.")
+        if not 0 <= day_index < self.days_in_cycle:
+            raise ValueError(f"Der Plan-Tag muss zwischen 0 und {self.days_in_cycle - 1} liegen.")
         if meal_id and not any(meal["id"] == meal_id for meal in self.data["meals"]):
             raise ValueError("Das ausgewählte Gericht wurde nicht gefunden.")
         self.data["schedule"][day_index] = meal_id
@@ -98,8 +105,8 @@ class MealPlanStore:
         """Replace the whole plan from versioned JSON data."""
         meals = payload.get("meals")
         schedule = payload.get("schedule")
-        if not isinstance(meals, list) or not isinstance(schedule, list) or len(schedule) != DAYS_IN_CYCLE:
-            raise ValueError("Der JSON-Import braucht Gerichte und genau 84 Plan-Tage.")
+        if not isinstance(meals, list) or not isinstance(schedule, list) or len(schedule) != self.days_in_cycle:
+            raise ValueError(f"Der JSON-Import braucht Gerichte und genau {self.days_in_cycle} Plan-Tage.")
         # Validate into a separate copy first. A malformed import must not
         # partially replace the saved plan.
         clean_meals: list[dict[str, Any]] = []

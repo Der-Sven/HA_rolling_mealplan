@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Familien-Speiseplan",
-        "description": "Lege den ersten Montag des 12-Wochen-Plans und deine Einkaufsliste fest.",
+        "description": "Lege den ersten Montag des Speiseplans und deine Einkaufsliste fest.",
         "data": {
           "anchor_date": "Montag der ersten Planwoche",
           "todo_entity": "Einkaufsliste"
@@ -15,6 +15,17 @@
     },
     "abort": {
       "already_configured": "Der Speiseplan ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Speiseplan-Einstellungen",
+        "description": "Lege die Anzahl der Wochen im rollierenden Plan fest. Beim Ändern werden nur Wochen am Ende hinzugefügt oder entfernt.",
+        "data": {
+          "weeks": "Anzahl Planwochen"
+        }
+      }
     }
   }
 }

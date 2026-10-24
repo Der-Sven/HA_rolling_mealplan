@@ -59,7 +59,7 @@ async def ws_delete_meal(hass, connection, msg):
 
 @websocket_api.websocket_command({
     vol.Required("type"): f"{DOMAIN}/set_day",
-    vol.Required("day_index"): vol.All(int, vol.Range(min=0, max=83)),
+    vol.Required("day_index"): vol.All(int, vol.Range(min=0, max=363)),
     vol.Required("meal_id"): vol.Any(str, None),
 })
 @websocket_api.async_response
@@ -88,7 +88,7 @@ async def ws_import(hass, connection, msg):
 
 @websocket_api.websocket_command({
     vol.Required("type"): f"{DOMAIN}/add_ingredients",
-    vol.Required("day_index"): vol.All(int, vol.Range(min=0, max=83)),
+    vol.Required("day_index"): vol.All(int, vol.Range(min=0, max=363)),
 })
 @websocket_api.async_response
 async def ws_add_ingredients(hass, connection, msg):

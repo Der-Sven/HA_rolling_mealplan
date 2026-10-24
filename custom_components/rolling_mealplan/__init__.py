@@ -7,7 +7,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, PANEL_URL
+from .const import DEFAULT_WEEKS, DOMAIN, PANEL_URL
 from .storage import MealPlanStore
 from .websocket import async_register_websocket_commands
 
@@ -28,7 +28,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up the meal plan entry and its sidebar panel."""
-    store = MealPlanStore(hass, entry.data["anchor_date"])
+    weeks = int(entry.options.get("weeks", DEFAULT_WEEKS))
+    store = MealPlanStore(hass, entry.data["anchor_date"], weeks)
     await store.async_load()
     hass.data[DOMAIN]["store"] = store
     hass.data[DOMAIN]["todo_entity"] = entry.data["todo_entity"]
@@ -44,6 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         require_admin=False,
     )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
 
 
@@ -54,3 +56,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     frontend.async_remove_panel(hass, DOMAIN)
     hass.data[DOMAIN].clear()
     return True
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload entities and resize stored schedule after option changes."""
+    await hass.config_entries.async_reload(entry.entry_id)
