@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4b0] - 2026-10-24
+
+### Changed
+
+- Im Kalender wird der Wochentag fett und das Datum darunter klein angezeigt, ohne das Datum doppelt auszugeben.
+
+
 ## [0.4.3b0] - 2026-10-24
 
 ### Changed

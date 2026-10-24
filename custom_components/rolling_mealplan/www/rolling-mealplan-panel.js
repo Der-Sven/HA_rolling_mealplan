@@ -52,7 +52,7 @@ class RollingMealplanPanel extends HTMLElement {
       const date=this._dateAt(i),slot=this._slot(date),id=this._data.schedule[slot]||"",meal=meals.find(m=>m.id===id);
       const options=['<option value="">— Gericht wählen —</option>'].concat(meals.map(m=>'<option value="'+this._esc(m.id)+'"'+(m.id===id?" selected":"")+'>'+this._esc(m.name)+'</option>')).join("");
       const today=date.getTime()===now.getTime();
-      return '<article class="day '+(today?"today":"")+'"><div class="dayname"><b>'+this._esc(this._fmt(date))+'</b>'+(today?'<span>Heute</span>':"")+'<small>'+this._esc(this._fmt(date,{day:"2-digit",month:"2-digit"}))+'</small></div>'+
+      return '<article class="day '+(today?"today":"")+'"><div class="dayname"><b>'+this._esc(this._fmt(date,{weekday:"long"}))+'</b>'+(today?'<span>Heute</span>':"")+'<small>'+this._esc(this._fmt(date,{day:"2-digit",month:"2-digit"}))+'</small></div>'+
         '<select data-slot="'+slot+'">'+options+'</select>'+
         (meal?'<small class="ingredients">'+this._esc((meal.ingredients||[]).join(", ")||"Keine Zutaten")+'</small>':'')+
         '<button class="secondary shop" data-shop="'+slot+'"'+(!meal?" disabled":"")+'>Zutaten zur Einkaufsliste</button></article>';
