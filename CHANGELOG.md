@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.3b0] - 2026-10-24
+
+### Changed
+
+- Kalender und Gerichteliste sind zur übersichtlicheren Ansicht in getrennte Tabs aufgeteilt.
+- Die Planwochennummer steht jetzt direkt neben dem Datumsbereich und wird aus dem rollierenden Plan berechnet.
+
+
+## [0.4.2b0] - 2026-10-24
+
+### Added
+
+- In der Wochenansicht lässt sich auswählen, welche Planwoche für die aktuelle Kalenderwoche gelten soll. Der Start-Montag wird verschoben; Gerichte und Wochenreihenfolge bleiben bestehen.
+
+
 ## [0.4.1b0] - 2026-10-24
 
 ### Added

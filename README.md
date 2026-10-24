@@ -1,6 +1,6 @@
 # HA Rolling Mealplan
 
-> **Work in progress — Vorabversion 0.4.1b0.** Noch kein stabiler Release; Funktionen und Datenformat können sich ändern.
+> **Work in progress — Vorabversion 0.4.3b0.** Noch kein stabiler Release; Funktionen und Datenformat können sich ändern.
 
 
 
@@ -8,11 +8,12 @@ Eine Home Assistant Custom Integration für einen wiederkehrenden Familien-Speis
 
 ## Versionierung
 
-Die Integrationsversion steht im Manifest der Integration. Der aktuelle Stand ist **0.4.1b0** (Vorabversion). HACS zeigt bei einem Repository ohne veröffentlichtes GitHub-Release nur den kurzen Commit-SHA. Für eine Versionsnummer in HACS wird ein GitHub-Release mit passendem Versions-Tag benötigt. Dieses Projekt verwendet dafür Vorabversionen; eine stabile Version ist noch nicht veröffentlicht.
+Die Integrationsversion steht im Manifest der Integration. Der aktuelle Stand ist **0.4.3b0** (Vorabversion). HACS zeigt bei einem Repository ohne veröffentlichtes GitHub-Release nur den kurzen Commit-SHA. Für eine Versionsnummer in HACS wird ein GitHub-Release mit passendem Versions-Tag benötigt. Dieses Projekt verwendet dafür Vorabversionen; eine stabile Version ist noch nicht veröffentlicht.
 ## Funktionen
 
-- Eigene Speiseplan-Seite in der Home Assistant Seitenleiste mit Wochen-Navigation und Planwochennummer
+- Eigene Speiseplan-Seite in der Home Assistant Seitenleiste mit Wochen-Navigation und Planwochennummer; Kalender und Gerichteliste sind in getrennten Tabs
 - Einstellbare Planlänge (1 bis 52 Wochen) in den Integrationseinstellungen; Verlängern fügt leere Wochen an, Verkürzen entfernt nur die letzten Wochen; Gerichte bleiben erhalten
+- Aktuelle Planwoche direkt in der App festlegen, etwa nach einer Urlaubspause; der Start-Montag wird passend verschoben, die Gerichte bleiben in ihrer Reihenfolge
 - Gerichte mit einfacher Zutatenliste in Home Assistant verwalten
 - JSON importieren/exportieren und Plan aus CSV importieren
 - Sensoren für heute und morgen für Dashboards; Attribute enthalten Datum und Zutaten

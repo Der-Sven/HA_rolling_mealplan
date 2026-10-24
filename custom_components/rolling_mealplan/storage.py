@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import date
+from datetime import date, timedelta
 from typing import Any
 from uuid import uuid4
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
+from homeassistant.util import dt as dt_util
 
 from .const import DEFAULT_WEEKS, DOMAIN, STORAGE_KEY, STORAGE_VERSION
 
@@ -111,6 +112,20 @@ class MealPlanStore:
         if meal_id and not any(meal["id"] == meal_id for meal in self.data["meals"]):
             raise ValueError("Das ausgewählte Gericht wurde nicht gefunden.")
         self.data["schedule"][day_index] = meal_id
+        await self._async_save()
+
+    async def async_set_current_week(self, week_number: int) -> None:
+        """Make a plan week apply to the current calendar week."""
+        if not 1 <= week_number <= self.weeks:
+            raise ValueError(f"Die Planwoche muss zwischen 1 und {self.weeks} liegen.")
+
+        # Use Home Assistant's local date so the selected current week follows
+        # the installation's timezone rather than the server's UTC date.
+        today = dt_util.now().date()
+        current_monday = today - timedelta(days=today.weekday())
+        new_anchor = current_monday - timedelta(days=(week_number - 1) * 7)
+        self.anchor_date = new_anchor.isoformat()
+        self.data["anchor_date"] = self.anchor_date
         await self._async_save()
 
     async def async_import(self, payload: dict[str, Any]) -> None:

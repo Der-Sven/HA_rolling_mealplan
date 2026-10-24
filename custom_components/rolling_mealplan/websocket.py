@@ -73,6 +73,20 @@ async def ws_set_day(hass, connection, msg):
 
 
 @websocket_api.websocket_command({
+    vol.Required("type"): f"{DOMAIN}/set_current_week",
+    vol.Required("week_number"): vol.All(int, vol.Range(min=1, max=52)),
+})
+@websocket_api.async_response
+async def ws_set_current_week(hass, connection, msg):
+    """Set which plan week is active for the current calendar week."""
+    try:
+        await _get_store(hass).async_set_current_week(msg["week_number"])
+        connection.send_result(msg["id"], {})
+    except (ValueError, HomeAssistantError) as err:
+        connection.send_error(msg["id"], "invalid_plan", str(err))
+
+
+@websocket_api.websocket_command({
     vol.Required("type"): f"{DOMAIN}/import",
     vol.Required("data"): dict,
 })
@@ -159,5 +173,5 @@ def async_register_websocket_commands(hass: HomeAssistant) -> None:
     """Register this integration's frontend commands."""
     # Register once at component setup; handlers resolve the active store
     # for each request.
-    for command in (ws_get, ws_save_meal, ws_delete_meal, ws_set_day, ws_import, ws_add_ingredients):
+    for command in (ws_get, ws_save_meal, ws_delete_meal, ws_set_day, ws_set_current_week, ws_import, ws_add_ingredients):
         websocket_api.async_register_command(hass, command)
