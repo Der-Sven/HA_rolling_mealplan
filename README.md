@@ -34,7 +34,7 @@ Bei der Einrichtung werden der Montag der ersten Planwoche und die To-do-Listen-
 
 ## Speiseplan pflegen
 
-Die Seitenleiste enthält anschließend **Speiseplan**. Zuerst Gerichte anlegen und deren Zutaten als kommagetrennte Liste eintragen, zum Beispiel: frische Tomaten, Passata, Basilikum, Croutons. Danach die Gerichte den einzelnen Wochentagen zuordnen. Durch die Wochen kann beliebig vor- und zurückgeblättert werden; Zuordnungen wiederholen sich nach der eingestellten Wochenzahl. Ein Gericht, das gelöscht wird, wird auch aus allen Plan-Tagen entfernt.
+Die Seitenleiste enthält anschließend **Speiseplan**. Zuerst Gerichte anlegen und deren Zutaten als kommagetrennte Liste eintragen, zum Beispiel: frische Tomaten, Passata, Basilikum, Spaghetti. Danach die Gerichte den einzelnen Wochentagen zuordnen. Durch die Wochen kann beliebig vor- und zurückgeblättert werden; Zuordnungen wiederholen sich nach der eingestellten Wochenzahl. Ein Gericht, das gelöscht wird, wird auch aus allen Plan-Tagen entfernt.
 
 Der Einkaufslisten-Knopf fügt die Zutaten nur nach Interaktion hinzu. Home Assistant prüft zuvor die offenen Einträge der gewählten To-do-Liste auf gleiche Namen (ohne Beachtung von Groß-/Kleinschreibung und Mehrfach-Leerzeichen).
 
