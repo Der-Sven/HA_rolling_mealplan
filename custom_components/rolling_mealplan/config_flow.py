@@ -1,4 +1,3 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 """Config flow for Rolling Mealplan."""
 
 from __future__ import annotations
@@ -22,6 +21,7 @@ class RollingMealplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Set the first Monday and the shopping list entity."""
         errors = {}
         if user_input is not None:
+            # This Monday anchors the fixed 84-day rotation, independent of calendar months.
             anchor = date.fromisoformat(user_input["anchor_date"])
             if anchor.weekday() != 0:
                 errors["anchor_date"] = "not_monday"
@@ -45,4 +45,3 @@ class RollingMealplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
         })
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
-

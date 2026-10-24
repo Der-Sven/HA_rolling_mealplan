@@ -1,4 +1,3 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 """Persistent data model for the rolling 12-week meal plan."""
 
 from __future__ import annotations
@@ -50,6 +49,8 @@ class MealPlanStore:
 
     def meal_for_date(self, day: date) -> tuple[dict[str, Any] | None, int]:
         """Return scheduled meal and cycle slot for a date."""
+        # The anchor is day 0. Modulo maps dates before it and dates after
+        # week 12 back into the same cycle.
         offset = (day - date.fromisoformat(self.anchor_date)).days % DAYS_IN_CYCLE
         meal_id = self.data["schedule"][offset]
         return next((meal for meal in self.data["meals"] if meal["id"] == meal_id), None), offset
@@ -99,6 +100,8 @@ class MealPlanStore:
         schedule = payload.get("schedule")
         if not isinstance(meals, list) or not isinstance(schedule, list) or len(schedule) != DAYS_IN_CYCLE:
             raise ValueError("Der JSON-Import braucht Gerichte und genau 84 Plan-Tage.")
+        # Validate into a separate copy first. A malformed import must not
+        # partially replace the saved plan.
         clean_meals: list[dict[str, Any]] = []
         seen_ids: set[str] = set()
         for raw in meals:
@@ -121,6 +124,7 @@ class MealPlanStore:
 
     async def _async_save(self) -> None:
         await self._store.async_save(self.data)
+        # Iterate over a snapshot in case a listener unsubscribes while called.
         for listener in tuple(self._listeners):
             listener()
 
@@ -133,6 +137,8 @@ def _clean_ingredients(values: Any) -> list[str]:
     seen: set[str] = set()
     for value in values:
         item = str(value).strip()
+        # Compare normalized text but keep the first spelling and order
+        # for display.
         key = " ".join(item.casefold().split())
         if item and key not in seen:
             seen.add(key)

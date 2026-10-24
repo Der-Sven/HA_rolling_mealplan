@@ -1,4 +1,3 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 # HA Rolling Mealplan
 
 Eine Home Assistant Custom Integration für einen wiederkehrenden Familien-Speiseplan mit 12 Wochen (84 Tagen). Der Plan startet an einem konfigurierbaren Montag und wiederholt sich danach fortlaufend.
@@ -48,4 +47,3 @@ Diese erste Version speichert den Speiseplan lokal im Home Assistant Konfigurati
 ## Lizenz
 
 MIT
-

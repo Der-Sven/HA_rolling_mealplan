@@ -1,4 +1,5 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
+// Home Assistant mounts this custom element as a full-page panel and supplies
+// its authenticated object for calling the integration WebSocket API.
 class RollingMealplanPanel extends HTMLElement {
   constructor() {
     super();
@@ -13,10 +14,12 @@ class RollingMealplanPanel extends HTMLElement {
     if (!this._loaded && value) { this._loaded = true; this._load(); }
   }
   get hass() { return this._hass; }
+  // Start the view at the current Monday; users can browse either direction.
   _monday() {
     const d = new Date(); d.setHours(0,0,0,0);
     d.setDate(d.getDate()-((d.getDay()+6)%7)); return d;
   }
+  // Keep all frontend requests on the authenticated Home Assistant WebSocket.
   _api(type, fields={}) {
     return this._hass.connection.sendMessagePromise({type:"rolling_mealplan/"+type,...fields});
   }
@@ -27,6 +30,7 @@ class RollingMealplanPanel extends HTMLElement {
   _dateAt(offset) { const d=new Date(this._weekStart); d.setDate(d.getDate()+offset); return d; }
   _slot(date) {
     const anchor=new Date(this._data.anchor_date+"T00:00:00"); const d=new Date(date); d.setHours(0,0,0,0);
+    // Navigation can span past and future weeks; assignments always wrap through the 84-day cycle.
     return ((Math.round((d-anchor)/86400000)%84)+84)%84;
   }
   _fmt(d, opts={weekday:"long",day:"2-digit",month:"2-digit"}) {
@@ -35,6 +39,7 @@ class RollingMealplanPanel extends HTMLElement {
   _esc(s) {
     return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   }
+  // Build the week cards from the selected dates and the matching cycle slots.
   _render() {
     const meals=this._data.meals||[], sunday=this._dateAt(6), now=new Date(); now.setHours(0,0,0,0);
     const range=this._fmt(this._weekStart,{day:"2-digit",month:"long",year:"numeric"})+" – "+this._fmt(sunday,{day:"2-digit",month:"long",year:"numeric"});
@@ -53,6 +58,7 @@ class RollingMealplanPanel extends HTMLElement {
       (this._message?'<p class="msg">'+this._esc(this._message)+'</p>':"")+'<section class="days">'+rows+'</section><section class="manage"><div class="head"><div><h2>Gerichte</h2><p class="muted">Gerichte mit einfacher Zutatenliste.</p></div><button class="primary add">Gericht hinzufügen</button></div><ul>'+library+'</ul><div class="transfer"><button class="secondary export">JSON exportieren</button><label class="import">JSON oder CSV importieren<input type="file" accept=".json,.csv,application/json,text/csv"></label><p class="muted">CSV: week, weekday (1–7), meal, ingredients; Zutaten mit Semikolon trennen. Import ersetzt den gesamten Plan.</p></div></section><p class="foot">Wiederholung nach 12 Wochen · Start-Montag: '+this._esc(this._data.anchor_date||"—")+"</p></main>";
     this._bind();
   }
+  // Attach handlers after each render because the panel replaces its shadow DOM.
   _bind() {
     this.shadowRoot.querySelector(".prev").onclick=()=>{this._weekStart.setDate(this._weekStart.getDate()-7);this._render();};
     this.shadowRoot.querySelector(".next").onclick=()=>{this._weekStart.setDate(this._weekStart.getDate()+7);this._render();};
@@ -73,10 +79,12 @@ class RollingMealplanPanel extends HTMLElement {
   async _run(action, success) {
     try {
       const result=await action();
+      // Shopping-list actions return how many items were added or skipped.
       this._message=result&&typeof result.added==="number"?result.added+" Zutat(en) hinzugefügt; "+result.skipped+" bereits vorhanden oder doppelt.":(success||"Änderung gespeichert.");
       await this._load();
     } catch(err) { this._message="Aktion fehlgeschlagen: "+(err.message||err);this._render(); }
   }
+  // The same dialog handles adding a meal and editing its name or ingredients.
   _dialog(meal=null) {
     const dlg=document.createElement("dialog");
     dlg.innerHTML="<form class='form'><h2>"+(meal?"Gericht ändern":"Gericht hinzufügen")+"</h2><label>Name<input name='name' required maxlength='120'></label><label>Zutaten, durch Komma getrennt<textarea name='ingredients' rows='3' placeholder='frische Tomaten, Passata, Basilikum'></textarea></label><div class='actions'><button type='button' class='secondary cancel'>Abbrechen</button><button class='primary'>Speichern</button></div></form>";
@@ -85,12 +93,14 @@ class RollingMealplanPanel extends HTMLElement {
     dlg.querySelector("form").onsubmit=ev=>{ev.preventDefault();const name=dlg.querySelector("[name=name]").value.trim();const ingredients=dlg.querySelector("[name=ingredients]").value.split(",").map(x=>x.trim()).filter(Boolean);dlg.close();this._run(()=>this._api("save_meal",{meal_id:meal?.id||null,name,ingredients}),"Gericht gespeichert.");};
     dlg.showModal();
   }
+  // Export the full versioned plan so it can be restored with all 84 assignments.
   _export() {
     const blob=new Blob([JSON.stringify(this._data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
     a.href=url;a.download="rolling-mealplan.json";a.click();URL.revokeObjectURL(url);
   }
   async _import(ev) {
     const file=ev.target.files?.[0];if(!file)return;
+    // Import replaces every meal and cycle slot, so ask before sending it to storage.
     if(!confirm("Der Import ersetzt die Gerichteliste und alle 12 Planwochen. Fortfahren?")){ev.target.value="";return;}
     try {
       let data;
@@ -101,6 +111,7 @@ class RollingMealplanPanel extends HTMLElement {
     finally{ev.target.value="";}
   }
   _csv(text) {
+    // Respect quoted commas in CSV fields; semicolons separate ingredients inside their field.
     const parse=line=>{const out=[];let field="",q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&q&&line[i+1]==='"'){field+='"';i++;}else if(c==='"')q=!q;else if(c===","&&!q){out.push(field.trim());field="";}else field+=c;}out.push(field.trim());return out;};
     const rows=text.replace(/^\uFEFF/,"").split(/\r?\n/).filter(x=>x.trim()).map(parse);
     if(rows.length<2)throw new Error("Die CSV-Datei enthält keine Planzeilen.");

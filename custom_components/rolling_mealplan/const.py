@@ -1,4 +1,3 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 """Constants for Rolling Mealplan."""
 
 DOMAIN = "rolling_mealplan"

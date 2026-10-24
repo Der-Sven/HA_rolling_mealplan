@@ -1,4 +1,3 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 """Integration setup for Rolling Mealplan."""
 
 from pathlib import Path
@@ -18,6 +17,7 @@ PANEL_FILE = Path(__file__).parent / "www" / "rolling-mealplan-panel.js"
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Register static frontend files and WebSocket support."""
+    # These integration-wide routes are registered once, outside entry reloads.
     async_register_websocket_commands(hass)
     await hass.http.async_register_static_paths(
         [StaticPathConfig(PANEL_URL, str(PANEL_FILE), cache_headers=False)]
@@ -32,6 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await store.async_load()
     hass.data[DOMAIN]["store"] = store
     hass.data[DOMAIN]["todo_entity"] = entry.data["todo_entity"]
+    # Tie the sidebar panel to the config entry so unloading removes it cleanly.
     await panel_custom.async_register_panel(
         hass=hass,
         frontend_url_path=DOMAIN,

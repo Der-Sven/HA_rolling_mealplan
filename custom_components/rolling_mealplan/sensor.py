@@ -1,4 +1,3 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 """Today and tomorrow meal sensors."""
 
 from __future__ import annotations
@@ -54,6 +53,7 @@ class MealSensor(SensorEntity):
         self._attr_name = "Morgen" if is_tomorrow else "Heute"
         self._remove_listener = None
         self._remove_midnight = None
+        # Group both readings under one device in the Home Assistant device registry.
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": "Familien-Speiseplan",
@@ -85,6 +85,7 @@ class MealSensor(SensorEntity):
 
         @callback
         def midnight_update(_now) -> None:
+            # Tomorrow changes at midnight even when no plan data was edited.
             self.async_write_ha_state()
 
         self._remove_midnight = async_track_time_change(
@@ -102,5 +103,3 @@ class MealSensor(SensorEntity):
     def _handle_update(self) -> None:
         """Update entity after plan edits."""
         self.async_write_ha_state()
-
-

@@ -1,4 +1,3 @@
-Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 """WebSocket commands for the Rolling Mealplan panel."""
 
 from __future__ import annotations
@@ -108,6 +107,8 @@ async def ws_add_ingredients(hass, connection, msg):
         connection.send_result(msg["id"], {"added": 0, "skipped": 0})
         return
 
+    # Read open items once, then update the set after each insertion to catch
+    # duplicates both in the existing list and within this dish.
     response = await hass.services.async_call(
         "todo",
         "get_items",
@@ -138,6 +139,7 @@ async def ws_add_ingredients(hass, connection, msg):
 
 def _extract_items(response: Any, entity_id: str) -> list[dict[str, Any]]:
     """Normalize the response shapes returned by to-do providers."""
+    # HA returns results keyed by entity ID; tolerate a direct list too.
     if isinstance(response, dict):
         scoped = response.get(entity_id, response)
         if isinstance(scoped, dict) and isinstance(scoped.get("items"), list):
@@ -149,10 +151,13 @@ def _extract_items(response: Any, entity_id: str) -> list[dict[str, Any]]:
 
 def _normalize(value: str) -> str:
     """Normalize ingredient names for duplicate checks."""
+    # Ignore case and repeated whitespace without changing display text.
     return " ".join(value.casefold().split())
 
 
 def async_register_websocket_commands(hass: HomeAssistant) -> None:
     """Register this integration's frontend commands."""
+    # Register once at component setup; handlers resolve the active store
+    # for each request.
     for command in (ws_get, ws_save_meal, ws_delete_meal, ws_set_day, ws_import, ws_add_ingredients):
         websocket_api.async_register_command(hass, command)
