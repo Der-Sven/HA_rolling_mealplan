@@ -1,51 +1,51 @@
+Der Versuch, den InitializeDefaultDrives-Vorgang f�r den Anbieter "FileSystem" auszuf�hren, ist fehlgeschlagen.
 # HA Rolling Mealplan
 
-Eine Home Assistant Custom Integration für einen wiederkehrenden Speiseplan mit 12 Wochen.
+Eine Home Assistant Custom Integration für einen wiederkehrenden Familien-Speiseplan mit 12 Wochen (84 Tagen). Der Plan startet an einem konfigurierbaren Montag und wiederholt sich danach fortlaufend.
 
-> **Entwicklungsstand:** Projektgerüst. Die Integrationsfunktionen und die Wochenansicht werden schrittweise ergänzt.
+## Funktionen
 
-## Geplante Funktionen
+- Eigene Speiseplan-Seite in der Home Assistant Seitenleiste mit Wochen-Navigation
+- Gerichte mit einfacher Zutatenliste in Home Assistant verwalten
+- JSON importieren/exportieren und Plan aus CSV importieren
+- Sensoren für heute und morgen für Dashboards; Attribute enthalten Datum und Zutaten
+- Pro Tag Zutaten per Knopf in eine bei der Einrichtung gewählte To-do-Liste übernehmen
+- Bereits offene, gleichnamige Zutaten werden übersprungen
 
-- Der Plan umfasst 12 Wochen (84 Tage), startet an einem Montag und wiederholt sich danach fortlaufend.
-- Gerichte werden über die Home Assistant Oberfläche gepflegt. Import und Export unterstützen JSON und CSV.
-- Pro Gericht wird eine einfache Zutatenliste gespeichert; vollständige Rezepte sind nicht vorgesehen.
-- Eine Wochenansicht bietet Navigation durch vergangene und kommende Wochen.
-- Sensoren stellen das Gericht für heute und morgen als Home Assistant Entitäten bereit.
-- Ein Knopf pro Tag fügt die Zutaten dieses Gerichts auf Wunsch der konfigurierten To-do-Liste hinzu. Bereits vorhandene offene Einträge werden übersprungen.
-- Die Oberfläche startet auf Deutsch. Weitere Sprachen können später über Home Assistant Übersetzungen ergänzt werden.
+## Installation über HACS
 
-## Installation (manuell)
+1. In HACS **Integrationen → ⋮ → Benutzerdefinierte Repositories** öffnen.
+2. https://github.com/Der-Sven/HA_rolling_mealplan eintragen und als Kategorie **Integration** wählen.
+3. Rolling Mealplan installieren und Home Assistant neu starten.
+4. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen** die Integration Rolling Mealplan einrichten.
 
-Nach Fertigstellung lässt sich die Integration manuell über HACS als benutzerdefiniertes Repository installieren. Bis dahin ist eine manuelle Installation möglich:
+## Manuelle Installation
 
-1. Repository herunterladen oder klonen.
-2. Den Ordner custom_components/rolling_mealplan in das gleichnamige Verzeichnis unter <config>/custom_components/ kopieren.
-3. Home Assistant neu starten.
-4. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen** nach **Rolling Mealplan** suchen.
-5. Im Einrichtungsdialog den Montag der ersten Planwoche und die To-do-Liste auswählen.
+1. Den Ordner custom_components/rolling_mealplan aus diesem Repository in <config>/custom_components/rolling_mealplan kopieren.
+2. Home Assistant neu starten.
+3. Die Integration unter Einstellungen → Geräte & Dienste → Integration hinzufügen hinzufügen.
 
-Der aktuelle Projektstand enthält noch nicht alle beschriebenen Funktionen und ist noch nicht für den produktiven Einsatz vorgesehen.
+Bei der Einrichtung werden der Montag der ersten Planwoche und die To-do-Listen-Entität gewählt. Der Start-Montag bestimmt die Position des Plans im 84-Tage-Zyklus.
 
-## HACS
+## Speiseplan pflegen
 
-Das Repository wird für die manuelle HACS-Installation vorbereitet. Eine spätere Einreichung in die HACS-Standardliste ist ein eigener Schritt und setzt die zu diesem Zeitpunkt geltenden HACS-Anforderungen sowie eine Prüfung voraus.
+Die Seitenleiste enthält anschließend **Speiseplan**. Zuerst Gerichte anlegen und deren Zutaten als kommagetrennte Liste eintragen, zum Beispiel: frische Tomaten, Passata, Basilikum, Croutons. Danach die Gerichte den einzelnen Wochentagen zuordnen. Durch die Wochen kann beliebig vor- und zurückgeblättert werden; Zuordnungen wiederholen sich nach 12 Wochen. Ein Gericht, das gelöscht wird, wird auch aus allen Plan-Tagen entfernt.
 
-## Austauschformat
+Der Einkaufslisten-Knopf fügt die Zutaten nur nach Interaktion hinzu. Home Assistant prüft zuvor die offenen Einträge der gewählten To-do-Liste auf gleiche Namen (ohne Beachtung von Groß-/Kleinschreibung und Mehrfach-Leerzeichen).
 
-JSON ist das vollständige Sicherungs- und Austauschformat. Es enthält die Gerichte mit Zutaten und die Zuordnung aller 84 Tage zu Gerichten. Beispiel für einen Gerichtseintrag:
+## JSON-Format
 
-    {
-      "id": "tomatensuppe",
-      "name": "Tomatensuppe",
-      "ingredients": ["frische Tomaten", "Passata", "Basilikum", "Croutons"]
-    }
+JSON-Export und -Import enthalten alle Gerichte und genau 84 Zyklustage. Ein Eintrag im schedule ist eine Gericht-ID oder null. Alternativ akzeptiert der JSON-Import weeks als Liste mit 12 Listen zu je 7 Gericht-IDs.
 
-CSV eignet sich für den tabellarischen Import und Export des Wochenplans. JSON bleibt erforderlich, wenn Zutatenlisten vollständig übertragen werden sollen.
+## CSV-Format
 
-## Entwicklung
+CSV importiert den 12-Wochen-Plan. Die Kopfzeile ist week,weekday,meal,ingredients. Woche ist 1 bis 12, Wochentag 1 bis 7 (Montag bis Sonntag). Zutaten werden innerhalb des Zutatenfelds mit Semikolon getrennt. Ein leerer meal-Wert lässt den Tag frei. Beim Import wird der bisherige Plan ersetzt.
 
-Der Integrationscode liegt in custom_components/rolling_mealplan. Fehlerberichte und Beiträge sind willkommen, sobald das Repository veröffentlicht ist.
+## Hinweise
+
+Diese erste Version speichert den Speiseplan lokal im Home Assistant Konfigurationsverzeichnis. Eine gemeinsame Bearbeitung mehrerer Home Assistant Installationen ist nicht vorgesehen.
 
 ## Lizenz
 
-Noch festzulegen.
+MIT
+
